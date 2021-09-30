@@ -1,0 +1,261 @@
+// Assume you have a deck of cards, each with an integer number on it (no suits).
+// Define "X of a kind" as X cards of the same number (X >= 2).
+// Define an algorithm to determine if the deck can be fully divided into "X of a kind"s.
+
+// 3, 5, 3, 5, 3
+// 3, 3, 3, 5, 3
+
+public static void main(String[] _) {
+  ArrayList<Integer> input = ArrayList<>(List.of(/*...*/));
+  // can you see this Abdulijubjub
+
+  boolean result = checkDeck(input);
+	System.out.println("check deck " + result);  
+  
+}
+
+public boolean checkDeckForXOfAKind(List<Integer> deck) {
+	Map<Integer, Integer> counts = new HashMap<>();
+  for (Integer card: input) {
+    if (counts.containsKey(card)) {
+      Integer currentCount = counts.get(card);
+      currentCount++;
+      counts.put(card, currentCount)
+    } else {
+      counts.put(card, 1);
+    }
+  }
+
+  for(Integer key: counts.keySet()) {
+    if (counts.get(key) < 2) {
+      return false;
+    }
+  }
+  return true;
+}
+
+// Define "Straight" as 5 cards with consecutive numbers.
+// Define an algorithm to determine if the deck can be fully divided into "Straight"s.
+  
+  
+// 1, 2, 3, 4, 5, 4, 5, 6, 7, 8 // trivial
+// 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+// 2, 3, 6, 7, 8, 1, 4, 4, 5, 5 // random-ish
+// 1, 2, 3, 4, 4, 5, 5, 6, 7, 8 // sorted
+
+public boolean checkDeckForStraights(List<Integer> deck) {
+  Map<Integer, Integer> allNumbers = new TreeMap<Integer, Integer>();
+  for (Integer card: input) {
+    if (allNumbers.containsKey(card)) {
+      Integer currentCount = allNumbers.get(card);
+      currentCount++;
+      allNumbers.put(card, currentCount)
+    } else {
+      allNumbers.put(card, 1);
+    }
+  }
+  
+  List<Integer> sortedDeck = Collections.sort(deck);
+  
+  /*
+  int straightCount = 0;
+  Integer currentCard;
+  for (int i = 0; i < sortedDeck.size(); i++) {
+    if (straightCount == 0) {
+    	Integer currentCard = sortedDeck.get(i);
+    }
+    if (allNumbers.get(currentCard) > 0) {
+     	 Integer newCount = allNumbers.get(currentCard);
+      newCount--;
+      allNumbers.put(currentCard, newCount);
+      straightCount++;
+      currentCard++;
+    } else {
+     	return false; 
+    }
+  }
+  */
+  
+  // 1, 1, 2, 2, 3, 3, 4, 4, 5, 5
+  // 1 - 2 - 3 - 4 - 5 
+  // 3 - 2 - 2 - 2 - 6
+	for (Integer currentMinCard: allNumbers.keySet()) {
+    Integer currentCount = allNumbers.get(currentMinCard);
+    if (currentCount <= 0) {
+     	continue; 
+    }
+    while (allNumbers.get(currentMinCard) > 0) {
+      for (int i = 0; i < 5; i++) {
+        if (!allNumbers.containsKey(currentMinCard + i)) {
+          return false;
+        }
+        Integer count = allNumbers.get(currentMinCard + i);
+        if (count < currentCount) {
+          return false;
+        }
+        count -= currentCount;
+        allNumbers.put(currentMinCard, count);
+      }
+    }
+  }
+  
+  return true;
+}
+
+// 1, 2, 3, 3, 4, 5
+// 1, 2, 3, 2, 3, 4, 3, 4, 5
+// 1, 2, 2, 3, 3, 3, 4, 4, 5
+
+// 1, 2, 3, 4, 4, 5, 6
+
+//1 straight of length 1
+//1 straight of length 2
+
+//1 straight of length 3 ending in 3
+//1 straight of length 1 ending in 3
+  
+//1 straight of length 4
+//1 straight of length 2
+
+public boolean checkDeckInfiniteStraights(List<Integer> deck) {
+  Map<Integer, Integer> allNumbers = new TreeMap<Integer, Integer>();
+  for (Integer card: input) {
+    if (allNumbers.containsKey(card)) {
+      Integer currentCount = allNumbers.get(card);
+      currentCount++;
+      allNumbers.put(card, currentCount)
+    } else {
+      allNumbers.put(card, 1);
+    }
+  }
+  
+  List<Integer> sortedDeck = Collections.sort(deck);
+  
+  List<Straight> straightsList = new ArrayList<Straight>();
+  for (Integer card: allNumbers.keyset()) {
+    Integer cardCount = allNumbers.get(card);
+    label:
+    for (int i = 0; i < cardCount; i++) {
+      int currentStraightsListSize = straightsList.size();
+      
+     	for (int k = 0; k < currentStraightsListSize; k++) {
+       	Straight checkStraight = starightsList.get(k);
+        // add new currentStraight if straight less than size 3
+        if (checkStraight.canAddCard(card) && checkStraight.size() < 3) {
+          checkStraight.addCard(card);
+          break label;
+        // make a new straight
+        }
+      }
+      
+     	for (int k = 0; k < currentStraightsListSize; k++) {
+       	Straight checkStraight = starightsList.get(k);
+        // add new currentStraight if straight less than size 3
+        if (checkStraight.canAddCard(card)) {
+          checkStraight.addCard(card);
+          break label;
+        // make a new straight
+        }
+      }
+      Straight newStraight = new Straight();
+      newStraight.addCard(card);
+      straightsList.add(newStraight);
+    }
+  }
+  for (Straight s : straightsList) {
+    if (s.size() < 3) {
+      return false;
+    }
+  }
+  return true;
+}
+
+public static class Straight {
+ 	List<Integer> cards;
+  Integer endingCard;
+  public void addCard(Integer card) {
+    cards.add(card);
+    endingCard = card;
+  }
+  public List<Integer> getCards() {
+    return cards;
+  }
+  public Integer getEndingCard() {
+   	return endingCard; 
+  }
+  public Integer size() {
+   	return cards.size(); 
+  }
+  public boolean canAddCard(Integer card) {
+   	return card == endingCard + 1 
+  }
+}
+
+public boolean checkDeckInfiniteStraights(List<Integer> deck) {
+  Map<Integer, Integer> allNumbers = new TreeMap<Integer, Integer>();
+  for (Integer card: input) {
+    if (allNumbers.containsKey(card)) {
+      Integer currentCount = allNumbers.get(card);
+      currentCount++;
+      allNumbers.put(card, currentCount)
+    } else {
+      allNumbers.put(card, 1);
+    }
+  }
+  // Pair<count of straights, length of straight>;
+  ArrayList<Pair<Integer, Integer>> ongoingStraights = ArrayList<>();
+  for (Integer card : allNumbers.keySet()) {
+    int remainder = allNumbers.get(card);
+  	Map<Integer, Integer> newStraights = new HashMap<Integer, Integer>();
+    for (Pair<Integer, Integer> straight : ongoingStraights) {
+      int diff = Math.min(straight.first(), remainder); // count
+      newStraights.add(new Pair(diff, straight.second()+1)); // carry it over, but 1 longer
+      remainder -= diff;
+      straight.setFirst(straight.first() - diff); // reduce the count so we know if we managed to completely extend a 1 or 2 length straight
+                       
+      if (remainder == 0) { // no more cards of this number to ditch, so all further iterations would be a no-op
+        break;
+      }
+    }
+    if (remainder != 0) {
+      newStraights.add(new Pair<Integer, Integer>(remainder, 1);
+    }
+		// check that we didn't fail to close a straight before we overwrite this
+  	for (Pair<Integer, Integer> straight : ongoingStraights) {
+      if (straight.first() != 0 && straight.second() < 3) { // there is a non-zero number of straights we can't complete
+        return false;
+      }
+    }
+    ongoingStraights = newStraights;
+  }
+
+  for (Pair<Integer, Integer> straight : ongoingStraights) { // did it twice, should make this into a function, but i'm lazy
+    if (straight.first() != 0 && straight.second() < 3) { // there is a non-zero number of straights we can't complete
+      return false;
+    }
+  }
+  return true;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
